@@ -21,7 +21,7 @@ from torch.testing import make_tensor
 from torch.testing._internal.common_utils import (
     IS_FBCODE, IS_JETSON, IS_MACOS, IS_SANDCASTLE, IS_WINDOWS, TestCase, run_tests, slowTest,
     parametrize, reparametrize, subtest, instantiate_parametrized_tests, dtype_name,
-    TEST_WITH_ROCM, decorateIf, skipIfRocm
+    TEST_WITH_ROCM, decorateIf, skipIfRocm, TEST_WITH_ASAN
 )
 from torch.testing._internal.common_device_type import \
     (PYTORCH_TESTING_DEVICE_EXCEPT_FOR_KEY, PYTORCH_TESTING_DEVICE_ONLY_FOR_KEY, dtypes,
@@ -2404,14 +2404,17 @@ class TestImports(TestCase):
                     raise RuntimeError(f"Failed to import {mod_name}: {e}") from e
                 self.assertTrue(inspect.ismodule(mod))
 
+    @unittest.skipIf(TEST_WITH_ASAN, "LSAN outputs suppression report on stderr")
     def test_lazy_imports_are_lazy(self) -> None:
         out = self._check_python_output("import sys;import torch;print(all(x not in sys.modules for x in torch._lazy_modules))")
         self.assertEqual(out.strip(), "True")
 
+    @unittest.skipIf(TEST_WITH_ASAN, "LSAN outputs suppression report on stderr")
     def test_no_warning_on_import(self) -> None:
         out = self._check_python_output("import torch")
         self.assertEqual(out, "")
 
+    @unittest.skipIf(TEST_WITH_ASAN, "LSAN outputs suppression report on stderr")
     def test_not_import_sympy(self) -> None:
         out = self._check_python_output("import torch;import sys;print('sympy' not in sys.modules)")
         self.assertEqual(out.strip(), "True",
@@ -2423,6 +2426,7 @@ class TestImports(TestCase):
                          "  - Use TYPE_CHECKING if you are using sympy + strings if you are using sympy on type annotations\n"
                          "  - Import things that depend on SymPy locally")
 
+    @unittest.skipIf(TEST_WITH_ASAN, "LSAN outputs suppression report on stderr")
     @parametrize('path', ['torch', 'functorch'])
     def test_no_mutate_global_logging_on_import(self, path) -> None:
         # Calling logging.basicConfig, among other things, modifies the global
