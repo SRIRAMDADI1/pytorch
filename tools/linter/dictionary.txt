@@ -10,6 +10,7 @@ ElementE
 followings
 fro
 froms
+Halfs
 hsa
 matA
 nd
@@ -30,3 +31,4 @@ ser'der
 ser'des
 supercedes
 te
+WONT
